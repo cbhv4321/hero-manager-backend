@@ -1,4 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectorRef } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
 
 @Component({
   standalone: true,
@@ -8,28 +10,38 @@ import { Component } from '@angular/core';
   styleUrl: './heros-display-page.scss',
 })
 
+@Injectable(
+{
+  providedIn: 'root'
+})
 export class HerosDisplayPage 
 {
   heros: Hero[] = []
   
-  constructor()
+  constructor(
+    private http: HttpClient, 
+    private cdr: ChangeDetectorRef)
   {
     this.loadHeros()
   }
 
-  async loadHeros()
+  loadHeros()
   {
-    const result = await fetch("http://localhost:8080/heroes")
-    this.heros = await result.json() as Hero[]
+    this.http.get<Hero[]>("http://localhost:5000/heroes")
+    .subscribe(data =>
+    {
+      this.heros = data;
+      this.cdr.detectChanges();
+    });
   }
 }
 
 type Hero = 
 {
-    id: number
-    name: string
-    suit_color: string
-    has_cape: boolean
-    last_mission: string | null
-    is_retired: boolean
+  id: number
+  name: string
+  suitColor: string
+  hasCape: boolean
+  lastMission: string | null
+  isRetired: boolean
 }
